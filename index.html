@@ -575,24 +575,26 @@
     }
 
     const toEnglishDigits = value => String(value).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+    // বাংলা বানানের ভিন্ন রূপ (যেমন এক অক্ষরের ড় বনাম ড+নুকতা) একই ধরার জন্য
+    const nk = x => String(x).replace(/[\u200c\u200d]/g, '').normalize('NFC');
     const parsed = {};
 
     raw.split(/\r?\n/).forEach(line => {
       const parts = line.split(/[:：=]/);
       if (parts.length < 2) return;
-      const key = parts.shift().trim().toLowerCase().replace(/\s+/g, ' ');
+      const key = nk(parts.shift().trim().toLowerCase().replace(/\s+/g, ' '));
       const value = parts.join(':').trim();
       if (!value) return;
 
-      if (['নাম', 'পণ্যের নাম', 'name', 'product name'].includes(key)) parsed.name = value;
-      else if (['মূল্য', 'দাম', 'price', 'মূল দাম', 'আসল মূল্য'].includes(key)) parsed.price = toEnglishDigits(value).replace(/[^\d.]/g, '');
-      else if (['অফার', 'অফার মূল্য', 'অফার দাম', 'offer', 'offer price'].includes(key)) parsed.offer = toEnglishDigits(value).replace(/[^\d.]/g, '');
-      else if (['ক্যাটাগরি', 'category', 'বিভাগ'].includes(key)) parsed.category = value;
-      else if (['বড়', 'বড়', 'বড় প্লেট', 'বড় প্লেট', 'boro', 'large'].includes(key)) parsed.boro = toEnglishDigits(value).replace(/[^\d]/g, '');
-      else if (['ছোট', 'ছোট প্লেট', 'choto', 'small'].includes(key)) parsed.choto = toEnglishDigits(value).replace(/[^\d]/g, '');
-      else if (['ডেলিভারি', 'ডেলিভারি চার্জ', 'delivery', 'delivery charge'].includes(key)) parsed.delivery = toEnglishDigits(value).replace(/[^\d.]/g, '');
-      else if (['বিবরণ', 'বর্ণনা', 'description', 'details'].includes(key)) parsed.description = value;
-      else if (['সাইজ', 'sizes', 'size'].includes(key)) parsed.sizes = value;
+      if (['নাম', 'পণ্যের নাম', 'name', 'product name'].map(nk).includes(key)) parsed.name = value;
+      else if (['মূল্য', 'দাম', 'price', 'মূল দাম', 'আসল মূল্য'].map(nk).includes(key)) parsed.price = toEnglishDigits(value).replace(/[^\d.]/g, '');
+      else if (['অফার', 'অফার মূল্য', 'অফার দাম', 'offer', 'offer price'].map(nk).includes(key)) parsed.offer = toEnglishDigits(value).replace(/[^\d.]/g, '');
+      else if (['ক্যাটাগরি', 'category', 'বিভাগ'].map(nk).includes(key)) parsed.category = value;
+      else if (['বড়', 'বড়', 'বড় প্লেট', 'বড় প্লেট', 'boro', 'large'].map(nk).includes(key)) parsed.boro = toEnglishDigits(value).replace(/[^\d]/g, '');
+      else if (['ছোট', 'ছোট প্লেট', 'choto', 'small'].map(nk).includes(key)) parsed.choto = toEnglishDigits(value).replace(/[^\d]/g, '');
+      else if (['ডেলিভারি', 'ডেলিভারি চার্জ', 'delivery', 'delivery charge'].map(nk).includes(key)) parsed.delivery = toEnglishDigits(value).replace(/[^\d.]/g, '');
+      else if (['বিবরণ', 'বর্ণনা', 'description', 'details'].map(nk).includes(key)) parsed.description = value;
+      else if (['সাইজ', 'sizes', 'size'].map(nk).includes(key)) parsed.sizes = value;
     });
 
     let filled = [];
@@ -1338,4 +1340,4 @@ ${itemLines}
   });
 </script>
 </body>
-</html>
+        </html>
